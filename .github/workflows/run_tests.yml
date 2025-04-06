@@ -15,7 +15,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      # Репозиторий с тестами уже доступен (т.к. workflow запущен в нём)
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -37,7 +36,7 @@ jobs:
 
       - name: Build and run sdet project via Docker
         working-directory: simbirsoft_sdet_project
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for service to start
         run: |
@@ -65,7 +64,7 @@ jobs:
       - name: Stop Docker Containers
         if: always()
         working-directory: simbirsoft_sdet_project
-        run: docker-compose down
+        run: docker compose down
 
       - name: Checkout gh-pages branch or create directory
         if: always()
@@ -94,3 +93,4 @@ jobs:
         id: deployment
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/deploy-pages@v4
+
