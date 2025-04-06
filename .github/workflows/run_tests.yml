@@ -33,8 +33,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Clone sdet project repository
-        run: |
-          git clone https://github.com/bondarenkokate73/simbirsoft_sdet_project.git
+        run: git clone https://github.com/bondarenkokate73/simbirsoft_sdet_project.git
 
       - name: Build and run sdet project via Docker
         working-directory: simbirsoft_sdet_project
@@ -54,7 +53,7 @@ jobs:
             sleep 2
           done
 
-      - name: Debug — Show test files
+      - name: Debug — List test files
         run: ls -la tests
 
       - name: Check pytest installed
@@ -77,7 +76,7 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
-      - name: Create allure-history folder if missing
+      - name: Create gh-pages folder if missing
         run: mkdir -p gh-pages
         if: always()
 
@@ -88,7 +87,6 @@ jobs:
           allure_results: allure-results
           allure_history: gh-pages
           keep_reports: 20
-          clean: true
 
       - name: Setup Pages
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
