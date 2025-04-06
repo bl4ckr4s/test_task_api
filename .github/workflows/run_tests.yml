@@ -34,9 +34,12 @@ jobs:
       - name: Clone sdet project repository
         run: git clone https://github.com/bondarenkokate73/simbirsoft_sdet_project.git
 
+      - name: Show Docker version
+        run: docker --version
+
       - name: Build and run sdet project via Docker
         working-directory: simbirsoft_sdet_project
-        run: docker compose up -d --build
+        run: sudo docker compose up -d --build
 
       - name: Wait for service to start
         run: |
@@ -64,7 +67,7 @@ jobs:
       - name: Stop Docker Containers
         if: always()
         working-directory: simbirsoft_sdet_project
-        run: docker compose down
+        run: sudo docker compose down
 
       - name: Checkout gh-pages branch or create directory
         if: always()
@@ -93,4 +96,3 @@ jobs:
         id: deployment
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/deploy-pages@v4
-
