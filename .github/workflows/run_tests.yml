@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout tests repository
         uses: actions/checkout@v4
+        with:
+          path: tests
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,6 +27,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install test dependencies
+        working-directory: tests
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -51,15 +54,22 @@ jobs:
             sleep 2
           done
 
+      - name: Debug — Show test files
+        run: ls -la tests
+
+      - name: Check pytest installed
+        run: which pytest
+
       - name: Run API Tests
-        run: pytest -n auto -v --alluredir=allure-results
+        working-directory: tests
+        run: pytest -n auto -v --alluredir=../allure-results
 
       - name: Stop Docker Containers
         if: always()
         working-directory: simbirsoft_sdet_project
         run: docker-compose down
 
-      - name: Get Allure history
+      - name: Checkout GitHub Pages branch (for Allure history)
         uses: actions/checkout@v4
         if: always()
         continue-on-error: true
@@ -67,13 +77,18 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+      - name: Create allure-history folder if missing
+        run: mkdir -p gh-pages
+        if: always()
+
       - name: Generate Allure Report
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
           allure_results: allure-results
-          allure_history: allure-history
+          allure_history: gh-pages
           keep_reports: 20
+          clean: true
 
       - name: Setup Pages
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
@@ -83,11 +98,9 @@ jobs:
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'allure-history'
+          path: 'gh-pages'
 
       - name: Deploy to GitHub Pages
         id: deployment
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/deploy-pages@v4
-
-
