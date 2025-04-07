@@ -24,9 +24,3 @@ class EntityResponse(BaseModel):
     verified: bool
     important_numbers: list[int]
     addition: AdditionResponse
-
-
-
-
-
-

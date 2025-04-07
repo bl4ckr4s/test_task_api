@@ -2,7 +2,6 @@ from faker import Faker
 
 from api.models.entity_model import AdditionData, EntityRequest
 
-
 fake = Faker()
 
 
