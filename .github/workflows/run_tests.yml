@@ -99,4 +99,6 @@ jobs:
 
       - name: Notification
         run: |
-          curl --location 'https://api.telegram.org/bot${{ secrets.TG_BOT }}/sendMessage' \ --header 'Content-Type: application/json' \ --data '{"chat_id": 742701899, "text": "tests finished. Report: https://bl4ckr4s.github.io/test_task_api"}'
+          curl --location 'https://api.telegram.org/bot${{ secrets.TG_BOT }}/sendMessage' \
+            --header 'Content-Type: application/json' \
+            --data '{"chat_id": 742701899, "text": "Tests finished. Report: https://bl4ckr4s.github.io/test_task_api"}'
