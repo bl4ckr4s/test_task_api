@@ -1,4 +1,5 @@
 import allure
+import pytest
 
 from api.api_client import ApiClient
 
@@ -10,6 +11,9 @@ class TestEntityApi:
     @allure.title("Тест успешного создания сущности")
     def test_create_entity(self, api_client: ApiClient, create_entity):
         entity_id, entity_data = create_entity
+
+        # Take API snapshot after entity creation
+        api_client.helper.take_screenshot("after_create")
 
         with allure.step("Проверка получения ID сущности"):
             assert entity_id, "ID сущности не должен быть пустым"
@@ -29,6 +33,9 @@ class TestEntityApi:
         with allure.step(f"Получение сущности по ID: {entity_id}"):
             retrieved_entity = api_client.get_entity(entity_id)
 
+        # Take API snapshot after retrieving the entity
+        api_client.helper.take_screenshot(f"entity_{entity_id}")
+
         with allure.step("Проверка соответствия данных сущности"):
             assert retrieved_entity.id == entity_id, "ID полученной сущности должен соответствовать запрошенному"
             assert retrieved_entity.title == entity_data['title'], "Заголовок должен соответствовать созданному"
@@ -47,8 +54,14 @@ class TestEntityApi:
     def test_get_all_entities(self, api_client: ApiClient, create_entities):
         entity_ids, entities_data = create_entities
 
+        # Take service health snapshot before test
+        api_client.helper.take_health_snapshot()
+
         with allure.step("Получение всех сущностей"):
             all_entities = api_client.get_all_entities()
+
+        # Take API snapshot after getting all entities
+        api_client.helper.take_screenshot("all_entities")
 
         with allure.step("Проверка получения всех сущностей"):
             entity_ids_in_response = [entity.id for entity in all_entities]
@@ -59,6 +72,9 @@ class TestEntityApi:
         with allure.step("Получение сущностей с фильтром по заголовку"):
             target_title = entities_data[0]['title']
             filtered_by_title = api_client.get_all_entities(title=target_title)
+
+        # Take API snapshot after filtering by title
+        api_client.helper.take_screenshot(f"filtered_by_title_{target_title[:10]}")
 
         with allure.step("Проверка фильтрации по заголовку"):
             assert isinstance(filtered_by_title, list), "Результат должен быть списком"
@@ -84,8 +100,14 @@ class TestEntityApi:
     def test_update_entity(self, api_client: ApiClient, create_entity):
         entity_id, original_data = create_entity
 
+        # Take API snapshot before update
+        api_client.helper.take_screenshot(f"before_update_{entity_id}")
+
         with allure.step(f"Обновление сущности с ID: {entity_id}"):
             updated_entity = api_client.update_entity(entity_id)
+
+        # Take API snapshot after update
+        api_client.helper.take_screenshot(f"after_update_{entity_id}")
 
         with allure.step("Проверка корректности обновления всех полей сущности"):
             assert updated_entity.id == entity_id, "ID не должен измениться"
@@ -100,8 +122,14 @@ class TestEntityApi:
         response = api_client.create_entity()
         entity_id = response['id']
 
+        # Take API snapshot before delete
+        api_client.helper.take_screenshot(f"before_delete_{entity_id}")
+
         with allure.step(f"Удаление сущности с ID: {entity_id}"):
             result = api_client.delete_entity(entity_id)
+
+        # Take API snapshot after delete
+        api_client.helper.take_screenshot(f"after_delete_{entity_id}")
 
         with allure.step("Проверка успешного удаления"):
             assert result is True, "Метод удаления должен вернуть True в случае успеха"

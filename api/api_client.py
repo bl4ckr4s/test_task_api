@@ -4,6 +4,7 @@ from api.endpoints import Endpoints
 from api.models.entity_model import EntityResponse
 from api.payloads import Payloads
 from utils.helper import Helper
+from utils.logger import Logger
 
 
 class ApiClient:
@@ -13,15 +14,21 @@ class ApiClient:
         self.payloads = Payloads()
         self.endpoints = Endpoints()
         self.helper = Helper()
+        self.logger = Logger()
 
     def create_entity(self) -> dict:
         """Create a new entity with optional custom fields"""
         payload = self.payloads.create
+        url = self.endpoints.create_entity
+
+        self.logger.log_request('POST', url, json=payload)
 
         response = requests.post(
-            url=self.endpoints.create_entity,
+            url=url,
             json=payload
         )
+
+        self.logger.log_response(response)
         self.helper.assert_status_code(response, 200)
         entity_id = response.json()
 
@@ -32,9 +39,13 @@ class ApiClient:
 
     def get_entity(self, entity_id: str) -> EntityResponse:
         """Get an entity by ID with response validation"""
-        response = requests.get(
-            url=self.endpoints.get_entity(entity_id)
-        )
+        url = self.endpoints.get_entity(entity_id)
+
+        self.logger.log_request('GET', url)
+
+        response = requests.get(url=url)
+
+        self.logger.log_response(response)
         self.helper.assert_status_code(response, 200)
 
         entity_data = response.json()
@@ -60,10 +71,16 @@ class ApiClient:
         if per_page is not None:
             params["perPage"] = per_page
 
+        url = self.endpoints.get_all_entities
+
+        self.logger.log_request('GET', url, params=params)
+
         response = requests.get(
-            url=self.endpoints.get_all_entities,
+            url=url,
             params=params
         )
+
+        self.logger.log_response(response)
         self.helper.assert_status_code(response, 200)
 
         response_data = response.json()
@@ -75,10 +92,16 @@ class ApiClient:
     def update_entity(self, entity_id: str) -> EntityResponse:
         """Update an existing entity with optional custom fields"""
         payload = self.payloads.create
+        url = self.endpoints.update_entity(entity_id)
+
+        self.logger.log_request('PATCH', url, json=payload)
+
         response = requests.patch(
-            url=self.endpoints.update_entity(entity_id),
+            url=url,
             json=payload
         )
+
+        self.logger.log_response(response)
         self.helper.assert_status_code(response, 204)
 
         updated_entity = self.get_entity(entity_id)
@@ -86,8 +109,12 @@ class ApiClient:
 
     def delete_entity(self, entity_id: str) -> bool:
         """Delete an entity"""
-        response = requests.delete(
-            url=self.endpoints.delete_entity(entity_id)
-        )
+        url = self.endpoints.delete_entity(entity_id)
+
+        self.logger.log_request('DELETE', url)
+
+        response = requests.delete(url=url)
+
+        self.logger.log_response(response)
         self.helper.assert_status_code(response, 204)
         return True
