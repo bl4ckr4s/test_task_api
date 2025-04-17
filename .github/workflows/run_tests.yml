@@ -96,3 +96,9 @@ jobs:
         id: deployment
         if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
         uses: actions/deploy-pages@v4
+
+      - name: Notification
+        run: |
+          curl --location 'https://api.telegram.org/bot${{ secrets.TG_BOT }}/sendMessage' \
+            --header 'Content-Type: application/json' \
+            --data '{"chat_id": 742701899, "text": "Tests finished. Report: https://bl4ckr4s.github.io/test_task_api"}'
